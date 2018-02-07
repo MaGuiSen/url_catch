@@ -1,0 +1,105 @@
+# -*- coding: utf-8 -*-
+from readability import Document
+from scrapy import Selector
+
+from util import CssUtil
+from util import EncryptUtil
+from util import ImageUtil
+from util.DomUtil import clearAltTitleHref
+from util.StyleCache import getStyle
+from util.DateUtil import findTimeStr
+
+def downLoadCss(styleUrls):
+    styleList = []
+    css = {}
+    for styleUrl in styleUrls:
+        # 得到hash作为key
+        if styleUrl.startswith(u'//'):
+            styleUrl = u'http:' + styleUrl
+        styleUrlHash = EncryptUtil.md5(styleUrl)
+        if styleUrlHash not in css:
+            # 不存在则去下载 并保存
+            styles = getStyle(styleUrl)
+            if styles:
+                css[styleUrlHash] = styles
+        if css.get(styleUrlHash):
+            styleList.append(css.get(styleUrlHash))
+    return styleList
+
+
+def clearDOM(content_html, clearPaths):
+    # 去除 image 的 alt title
+    selector = Selector(text=content_html)
+    # 去除不要的标签内容
+    for path in clearPaths:
+        blocks = selector.xpath(path).extract()
+        for block in blocks:
+            content_html = content_html.replace(block, '')
+    return content_html
+
+
+def parse(html):
+    doc = Document(html)
+    title = doc.title()
+    content_html = doc.summary()
+
+    clear_paths = [u'//script', u'//img', u'//a']
+    body = clearDOM(html, clear_paths)
+
+    match_list = findTimeStr(body)
+    post_date = u''
+    for match_item in match_list:
+        if len(match_item) > len(post_date):
+            post_date = match_item
+    print post_date
+
+    response = Selector(text=html)
+    styleUrls = response.xpath(u'//link[@rel="stylesheet"]/@href').extract()
+    styleList = downLoadCss(styleUrls)
+    styles = CssUtil.compressCss(styleList).replace(u'\'', u'"').replace(u'\\', u'\\\\')
+    styles = CssUtil.clearUrl(styles)
+
+    # 处理图片
+    selector = Selector(text=content_html)
+    # 解析文档中的所有图片url，然后替换成标识
+    image_urls = []
+    imgs = selector.xpath(u'descendant::img')
+
+    for img in imgs:
+        # 图片可能放在src 或者data-src
+        image_url_base = img.xpath(u'@src').extract_first('')
+        if image_url_base.startswith(u'//'):
+            image_url = u'http:' + image_url_base
+        else:
+            image_url = image_url_base
+        if image_url and image_url.startswith(u'http'):
+            print (u'得到图片：' + image_url)
+            image_urls.append({
+                u'url': image_url,
+            })
+            content_html = content_html.replace(image_url_base, image_url)
+
+    result_image_urls = ImageUtil.downLoadImage(image_urls)
+    for item in result_image_urls:
+        url = item.get(u'url', u'')
+        image_url = item.get(u'image_url', u'')
+        content_html = content_html.replace(u'&amp;', u'&').replace(url, image_url)
+
+    # 去除 image 的 alt title
+    content_html = clearAltTitleHref(content_html)
+
+    # 去除不要的标签内容
+    clearPaths = [u'//script']
+    content_html = clearDOM(content_html, clearPaths)
+
+    content_item = {
+        u'title': title,
+        u'content_html': content_html,
+        u'post_date': post_date,
+        u'styles': styles,
+    }
+    return content_item
+
+
+if __name__ == '__main__':
+    pass
