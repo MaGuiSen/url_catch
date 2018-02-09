@@ -11,7 +11,6 @@ sys.path.append('../')
 app = Flask(__name__, static_url_path='')
 app.static_folder = ''
 
-
 import json
 import logging
 import traceback
@@ -61,23 +60,24 @@ def base_func(operate_func):
         content_html = data.get(u'content_html', u'')
         html = """
             <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>%s</title>
-    <style>%s</style>
-</head>
-<body>
-<div class="detail-html">
-%s
-%s
-</div>
-</body>
-</html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>%s</title>
+                <style>%s</style>
+            </head>
+            <body>
+            <div class="detail-html">
+            %s
+            %s
+            </div>
+            </body>
+            </html>
         """ % (title, getCommonStyle(), post_date, content_html)
     _logger.debug(res_text)
     # return res_text  # Response(res_text, mimetype='applications/json')
     return Response(html, mimetype='text/html')
+
 
 @hq_sema_etl.route('/common/catch', methods=['GET'])
 def com_catch():
@@ -86,7 +86,9 @@ def com_catch():
         if not url:
             return -100, u'请输入爬取路径'
         return catch(url)
+
     return base_func(operate)
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,

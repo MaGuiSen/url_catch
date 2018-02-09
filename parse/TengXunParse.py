@@ -42,7 +42,6 @@ def parse(html):
         u'//*[@class="a_time"]/text() | //*[boolean(contains(@class, "pubTime"))]/text()').extract_first(u'')
 
     post_date = post_date.replace(u'\xa0', u' ')
-    post_date = DateUtil.dateFormat(dateStr=post_date)
 
     title = response.xpath(u'//*[@class="qq_article"]/div[@class="hd"]/h1/text() |'
                            u' //div[@class="LEFT"]/h1/text() | //title/text()').extract_first(u'')

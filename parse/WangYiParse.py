@@ -59,7 +59,6 @@ def parse(html):
     post_date = response.xpath(u'//meta[@property="article:published_time"]/@content').extract_first(u'')
     post_date = post_date.replace(u'T', u' ')
     post_date = post_date[0: post_date.rindex(u'+')]
-    post_date = DateUtil.dateFormat(dateStr=post_date)
 
     title = response.xpath(u'//meta[@property="og:title"]/@content | //title/text()').extract_first(u'')
 

@@ -45,18 +45,28 @@ def findTimeStr(content):
     minute = u'\d?\d{1}'
     second = u'\d?\d{1}'
 
-    fm_1 = u'%s/%s/%s' % (month, day, year)
-    fm_2 = u'%s-%s-%s' % (year, month, day)
-    fm_3 = u'%s/%s/%s' % (year, month, day)
-    fm_4 = u'%s\.%s\.%s' % (year, month, day)
-    fm_5 = u'%s/%s/%s\\s+%s:%s' % (year, month, day, hour, minute)
-    fm_6 = u'%s-%s-%s\\s+%s:%s' % (year, month, day, hour, minute)
-    fm_7 = u'%s/%s/%s\\s+%s:%s:%s' % (month, day, year, hour, minute, second)
-    fm_8 = u'%s-%s-%s\\s+%s:%s:%s' % (year, month, day, hour, minute, second)
-    fm_9 = u'%s/%s/%s\\s+%s:%s:%s' % (year, month, day, hour, minute, second)
-    fm_10 = u'%s\.%s\.%s\\s+%s:%s:%s' % (year, month, day, hour, minute, second)
-
-    pattern = re.compile(
-        u'(%s|%s|%s|%s|%s|%s|%s|%s|%s|%s)' % (fm_10, fm_9, fm_8, fm_7, fm_6, fm_5, fm_4, fm_3, fm_2, fm_1))
+    fm_list = (
+        u'%s/%s/%s' % (month, day, year),
+        u'%s-%s-%s' % (year, month, day),
+        u'%s/%s/%s' % (year, month, day),
+        u'%s\.%s\.%s' % (year, month, day),
+        u'%s年%s月%s日\\s+%s:%s' % (year, month, day, hour, minute),
+        u'%s/%s/%s\\s+%s:%s' % (year, month, day, hour, minute),
+        u'%s-%s-%s\\s+%s:%s' % (year, month, day, hour, minute),
+        u'%s/%s/%s\\s+%s:%s:%s' % (month, day, year, hour, minute, second),
+        u'%s-%s-%s\\s+%s:%s:%s' % (year, month, day, hour, minute, second),
+        u'%s/%s/%s\\s+%s:%s:%s' % (year, month, day, hour, minute, second),
+        u'%s\.%s\.%s\\s+%s:%s:%s' % (year, month, day, hour, minute, second),
+        u'%s年%s月%s日\\s+%s:%s:%s' % (year, month, day, hour, minute, second)
+    )
+    key_list = []
+    for index in range(0, len(fm_list)):
+        key_list.append(u'%s')
+    pattern = re.compile((u'(%s)' % u'|'.join(key_list)) % fm_list)
 
     return re.findall(pattern, content)
+
+
+if __name__ == '__main__':
+    result = findTimeStr(u'高江虹 　2018年01月17日 10:09')
+    print result and result[0]

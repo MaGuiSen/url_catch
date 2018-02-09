@@ -50,7 +50,6 @@ def parse(html):
         u'//*[@id="pub_date"]/text() | //*[@class="titer"]/text() | //*[@class="date-source"]'
         u'/span[@class="date"]/text() | //meta[@name="weibo: article:create_at"]/@content') \
         .extract_first(u'')
-    post_date = dateFormat(dateStr=post_date)
 
     title = response.xpath(u'//*[@id="artibodyTitle"]/text() | //*[@id="main_title"]/text() | '
                            u'//meta[@property="og:title"]/@content').extract_first(u'')

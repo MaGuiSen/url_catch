@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from readability import Document
 
+from util import DateUtil
 from util.DateUtil import findTimeStr
 from util.DomUtil import clearDOM
 
@@ -22,7 +23,6 @@ def parse(html):
     for match_item in match_list:
         if len(match_item) > len(post_date):
             post_date = match_item
-    print post_date
 
     style_in_list = []
     style_need_replace = []
